@@ -1,4 +1,4 @@
-const API_KEY = " 917e736a";
+const API_KEY = "917e736a";
 const BASE_URL = "https://www.omdbapi.com/";
 const STORAGE_KEY = "omdb-last-search";
 

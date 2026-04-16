@@ -5,6 +5,7 @@ const STORAGE_KEY = "omdb-last-search";
 const form = document.getElementById("searchForm");
 const input = document.getElementById("movieInput");
 const message = document.getElementById("message");
+const movieCard = document.getElementById("movieCard");
 
 const titleEl = document.getElementById("movieTitle");
 const yearEl = document.getElementById("movieYear");
@@ -14,8 +15,6 @@ const posterEl = document.getElementById("moviePoster");
 const ratingEl = document.getElementById("movieRating");
 const runtimeEl = document.getElementById("movieRuntime");
 const plotEl = document.getElementById("moviePlot");
-
-const movieCard = document.getElementById("movieCard");
 
 function showMessage(text, type = "error") {
   message.textContent = text;
@@ -48,9 +47,11 @@ function fillMovieData(data) {
   if (data.Poster && data.Poster !== "N/A") {
     posterEl.src = data.Poster;
     posterEl.alt = `${data.Title} poster`;
+    posterEl.style.display = "block";
   } else {
     posterEl.src = "";
     posterEl.alt = "Poster not available";
+    posterEl.style.display = "none";
   }
 }
 
@@ -66,11 +67,15 @@ async function fetchMovie(movieName) {
   showMessage("Loading...", "success");
 
   try {
-    const res = await fetch(
+    const response = await fetch(
       `${BASE_URL}?apikey=${API_KEY}&t=${encodeURIComponent(trimmedName)}`
     );
 
-    const data = await res.json();
+    if (!response.ok) {
+      throw new Error("Network error");
+    }
+
+    const data = await response.json();
 
     if (data.Response === "False") {
       hideMovieCard();
@@ -81,30 +86,31 @@ async function fetchMovie(movieName) {
     fillMovieData(data);
     showMovieCard();
     showMessage(`Showing result for "${data.Title}".`, "success");
-
     localStorage.setItem(STORAGE_KEY, trimmedName);
   } catch (error) {
     hideMovieCard();
     showMessage("Error fetching data!", "error");
+    console.error(error);
   }
 }
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", function (e) {
   e.preventDefault();
   fetchMovie(input.value);
 });
 
-document.querySelectorAll(".chip").forEach((button) => {
-  button.addEventListener("click", () => {
+document.querySelectorAll(".chip").forEach(function (button) {
+  button.addEventListener("click", function () {
     const movieTitle = button.dataset.title;
     input.value = movieTitle;
     fetchMovie(movieTitle);
   });
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  const lastSearch = localStorage.getItem(STORAGE_KEY);
+window.addEventListener("DOMContentLoaded", function () {
+  hideMovieCard();
 
+  const lastSearch = localStorage.getItem(STORAGE_KEY);
   if (lastSearch) {
     input.value = lastSearch;
     fetchMovie(lastSearch);

@@ -6,6 +6,7 @@ const form = document.getElementById("searchForm");
 const input = document.getElementById("movieInput");
 const message = document.getElementById("message");
 const movieCard = document.getElementById("movieCard");
+const resultsList = document.getElementById("resultsList");
 
 const titleEl = document.getElementById("movieTitle");
 const yearEl = document.getElementById("movieYear");
@@ -35,14 +36,45 @@ function showMovieCard() {
   movieCard.classList.remove("hidden");
 }
 
+function hideResultsList() {
+  resultsList.classList.add("hidden");
+  resultsList.innerHTML = "";
+}
+
+function showResultsList() {
+  resultsList.classList.remove("hidden");
+}
+
+function formatValue(value, fallbackText, iconClass) {
+  if (!value || value === "N/A") {
+    return `<span class="no-data"><i class="${iconClass}"></i> ${fallbackText}</span>`;
+  }
+  return value;
+}
+
 function fillMovieData(data) {
   titleEl.textContent = data.Title || "N/A";
   yearEl.textContent = data.Year || "N/A";
   genreEl.textContent = data.Genre || "N/A";
   directorEl.textContent = data.Director || "N/A";
-  ratingEl.textContent = data.imdbRating || "N/A";
-  runtimeEl.textContent = data.Runtime || "N/A";
-  plotEl.textContent = data.Plot || "N/A";
+
+  ratingEl.innerHTML = formatValue(
+    data.imdbRating,
+    "No rating available",
+    "fa-solid fa-star"
+  );
+
+  runtimeEl.innerHTML = formatValue(
+    data.Runtime,
+    "Runtime not available",
+    "fa-solid fa-clock"
+  );
+
+  plotEl.innerHTML = formatValue(
+    data.Plot,
+    "No plot information",
+    "fa-solid fa-book-open"
+  );
 
   if (data.Poster && data.Poster !== "N/A") {
     posterEl.src = data.Poster;
@@ -55,20 +87,51 @@ function fillMovieData(data) {
   }
 }
 
-async function fetchMovie(movieName) {
-  const trimmedName = movieName.trim();
+function renderResults(movies) {
+  resultsList.innerHTML = "";
+
+  movies.forEach((movie) => {
+    const poster =
+      movie.Poster && movie.Poster !== "N/A"
+        ? movie.Poster
+        : "https://placehold.co/400x600/0f172a/e5e7eb?text=No+Poster";
+
+    const card = document.createElement("article");
+    card.className = "result-card";
+    card.innerHTML = `
+      <img src="${poster}" alt="${movie.Title} poster">
+      <div class="result-card__body">
+        <h3 class="result-card__title">${movie.Title}</h3>
+        <p class="result-card__meta">${movie.Year} • ${movie.Type}</p>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      fetchMovieDetails(movie.imdbID);
+    });
+
+    resultsList.appendChild(card);
+  });
+
+  showResultsList();
+}
+
+async function fetchMovieList(searchText) {
+  const trimmedName = searchText.trim();
 
   if (!trimmedName) {
     hideMovieCard();
+    hideResultsList();
     showMessage("Please enter a movie name.", "error");
     return;
   }
 
-  showMessage("Loading...", "success");
+  hideMovieCard();
+  showMessage("Searching movies...", "success");
 
   try {
     const response = await fetch(
-      `${BASE_URL}?apikey=${API_KEY}&t=${encodeURIComponent(trimmedName)}`
+      `${BASE_URL}?apikey=${API_KEY}&s=${encodeURIComponent(trimmedName)}`
     );
 
     if (!response.ok) {
@@ -79,40 +142,73 @@ async function fetchMovie(movieName) {
 
     if (data.Response === "False") {
       hideMovieCard();
-      showMessage("Movie not found.", "error");
+      hideResultsList();
+      showMessage("No movies found.", "error");
+      return;
+    }
+
+    renderResults(data.Search);
+    showMessage(`Found ${data.Search.length} result(s). Select a movie.`, "success");
+    localStorage.setItem(STORAGE_KEY, trimmedName);
+  } catch (error) {
+    hideMovieCard();
+    hideResultsList();
+    showMessage("Error fetching movie list!", "error");
+    console.error(error);
+  }
+}
+
+async function fetchMovieDetails(imdbID) {
+  showMessage("Loading movie details...", "success");
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID)}&plot=full`
+    );
+
+    if (!response.ok) {
+      throw new Error("Network error");
+    }
+
+    const data = await response.json();
+
+    if (data.Response === "False") {
+      hideMovieCard();
+      showMessage("Movie details not found.", "error");
       return;
     }
 
     fillMovieData(data);
     showMovieCard();
-    showMessage(`Showing result for "${data.Title}".`, "success");
-    localStorage.setItem(STORAGE_KEY, trimmedName);
+    showMessage(`Showing details for "${data.Title}".`, "success");
+    movieCard.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     hideMovieCard();
-    showMessage("Error fetching data!", "error");
+    showMessage("Error fetching movie details!", "error");
     console.error(error);
   }
 }
 
 form.addEventListener("submit", function (e) {
   e.preventDefault();
-  fetchMovie(input.value);
+  fetchMovieList(input.value);
 });
 
 document.querySelectorAll(".chip").forEach(function (button) {
   button.addEventListener("click", function () {
     const movieTitle = button.dataset.title;
     input.value = movieTitle;
-    fetchMovie(movieTitle);
+    fetchMovieList(movieTitle);
   });
 });
 
 window.addEventListener("DOMContentLoaded", function () {
   hideMovieCard();
+  hideResultsList();
 
   const lastSearch = localStorage.getItem(STORAGE_KEY);
   if (lastSearch) {
     input.value = lastSearch;
-    fetchMovie(lastSearch);
+    fetchMovieList(lastSearch);
   }
 });

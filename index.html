@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OMDB Movie Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">i2i Systems Internship Project</p>
+        <h1>OMDB Movie Search</h1>
+        <p class="hero__text">
+          Search any movie and instantly view its main details. The app keeps your last search after refresh.
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="search-panel">
+        <form id="searchForm" class="search-form">
+          <label class="search-label" for="movieInput">Movie name</label>
+          <div class="search-row">
+            <input
+              id="movieInput"
+              type="text"
+              placeholder="Enter a movie title..."
+              autocomplete="off"
+              required
+            />
+            <button type="submit" id="searchButton">Search</button>
+          </div>
+        </form>
+
+        <div class="quick-searches">
+          <span>Quick search:</span>
+          <button type="button" class="chip" data-title="Inception">Inception</button>
+          <button type="button" class="chip" data-title="Interstellar">Interstellar</button>
+          <button type="button" class="chip" data-title="The Matrix">The Matrix</button>
+          <button type="button" class="chip" data-title="Parasite">Parasite</button>
+        </div>
+      </section>
+
+      <section class="status-panel" aria-live="polite">
+        <p id="message" class="message hidden"></p>
+      </section>
+
+      <section id="movieCard" class="movie-card hidden">
+        <div class="movie-card__poster-wrap">
+          <img id="moviePoster" src="" alt="Movie poster" class="movie-card__poster" />
+        </div>
+
+        <div class="movie-card__content">
+          <div class="movie-card__header">
+            <div>
+              <p class="card-label">Movie Details</p>
+              <h2 id="movieTitle">Title</h2>
+            </div>
+            <span id="movieYear" class="year-badge">Year</span>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-key">Genre</span>
+              <span id="movieGenre" class="detail-value">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Director</span>
+              <span id="movieDirector" class="detail-value">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">IMDb Rating</span>
+              <span id="movieRating" class="detail-value">-</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Runtime</span>
+              <span id="movieRuntime" class="detail-value">-</span>
+            </div>
+          </div>
+
+          <div class="plot-box">
+            <span class="detail-key">Plot</span>
+            <p id="moviePlot" class="plot-text">-</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

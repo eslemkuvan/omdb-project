@@ -399,4 +399,56 @@ input {
   .hero__badge {
     font-size: 0.92rem;
   }
+.results-list {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.result-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.22s ease;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.result-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.result-card img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  display: block;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.result-card__body {
+  padding: 14px;
+}
+
+.result-card__title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.result-card__meta {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .result-card img {
+    height: 280px;
+  }
+}
 }

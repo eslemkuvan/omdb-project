@@ -1,4 +1,10 @@
 # OMDB Movie Search Project
+##  Live Demo
+https://eslemkuvan.github.io/omdb-project/
+
+##  Project Description
+This project is a simple movie search application using the OMDB API.
+Users can search movies and see details like title, year, and poster.
 
 ## How to Set Up Your Repository
 
